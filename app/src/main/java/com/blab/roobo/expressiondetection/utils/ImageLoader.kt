@@ -49,6 +49,8 @@ class ImageLoader(val activity: Activity, imageView: ImageView) {
         handler = Handler(Looper.getMainLooper())
     }
     
+    
+    
     fun loadImage() {
         val dialog = BottomSheetDialog(activity)
         
@@ -226,11 +228,11 @@ class ImageLoader(val activity: Activity, imageView: ImageView) {
         // 第一次解析将inJustDecodeBounds设置为true，来获取图片大小
         val options = BitmapFactory.Options()
         options.inJustDecodeBounds = true
-        BitmapFactory.decodeFile(imageFilePath, options)
         // 调用上面定义的方法计算inSampleSize值
         options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight)
         // 使用获取到的inSampleSize值再次解析图片
         options.inJustDecodeBounds = false
+        
         return BitmapFactory.decodeFile(imageFilePath, options)
     }
     
@@ -258,15 +260,7 @@ class ImageLoader(val activity: Activity, imageView: ImageView) {
         val RESULT_ALBUM = 29943
         val RESULT_CAMERA = 29944
         
-        //上传文件类型
-        val AVATAR = "avatar" //头像
-        val ID_CARD = "idCard" //身份证正面照
-        val CASE = "case" //病例
-        val RECEIPT = "receipt" //购物发票
-        val MEDICINE = "medicine" //药品照片
-        val PRESCRIPTION = "prescription" //处方
-        val DOCTOR_ACVICE = "doctorAdvice" //医嘱
-        
     }
     
 }
+
