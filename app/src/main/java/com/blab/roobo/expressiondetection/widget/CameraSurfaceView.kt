@@ -15,11 +15,11 @@ import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.WindowManager
+import android.widget.ImageView
 import android.widget.Toast
 import com.blab.roobo.expressiondetection.base.SET_IMAGE
 import com.hellonurse.helloclient.utils.ImageLoader
 import com.hellonurse.helloclient.utils.RequestPermissionUtils
-import kotlinx.android.synthetic.main.activity_main.view.*
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
@@ -31,6 +31,7 @@ class CameraSurfaceView : SurfaceView, SurfaceHolder.Callback, Camera.AutoFocusC
     
     public lateinit var mHandler: Handler
     public lateinit var activity: Activity
+    public lateinit var imageView: ImageView
     
     private val mContext: Context
     private var mHolder: SurfaceHolder? = null
@@ -156,16 +157,18 @@ class CameraSurfaceView : SurfaceView, SurfaceHolder.Callback, Camera.AutoFocusC
                         previewSize.height,
                         null)
                 val stream = ByteArrayOutputStream()
+//                val rgb = decodeYUV420SP(data, previewSize.width, previewSize.height)
+//                val bmp = Bitmap.createBitmap(rgb, previewSize.width, previewSize.height, Bitmap.Config.ARGB_8888)
                 yuvImage.compressToJpeg(Rect(0, 0, previewSize.width, previewSize.height),
                         80,
                         stream)
                 val rawImage = stream.toByteArray()
                 val options = BitmapFactory.Options()
                 options.inPreferredConfig = Bitmap.Config.RGB_565
-                val bitmap = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.size, options)
-                imageView.setImageBitmap(bitmap)
+                val bmp = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.size, options)
+                imageView.setImageBitmap(bmp)
                 imageView.postDelayed({
-                    bitmap.recycle()
+                    bmp.recycle()
                 }, 2000)
             })
             

@@ -7,7 +7,7 @@ extern "C"
 JNIEXPORT jstring
 
 JNICALL
-Java_com_blab_roobo_expressiondetection_MainActivity_stringFromJNI(
+Java_com_blab_roobo_expressiondetection_nativehelper_NativeHelper_stringFromJNI(
         JNIEnv *env,
         jobject /* this */) {
     cv::Mat mat;

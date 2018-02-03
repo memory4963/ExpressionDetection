@@ -6,7 +6,6 @@ import android.os.Handler
 import android.os.Message
 import android.support.v7.app.AppCompatActivity
 import android.view.View
-import android.widget.Toast
 import com.blab.roobo.expressiondetection.base.SET_IMAGE
 import kotlinx.android.synthetic.main.activity_main.*
 import java.lang.ref.WeakReference
@@ -23,10 +22,10 @@ class MainActivity : AppCompatActivity() {
         //初始化相机
         cameraSurfaceView.mHandler = handler
         cameraSurfaceView.activity = this
+        cameraSurfaceView.imageView = imageView
         //获取图片button
         button.setOnClickListener({
             cameraSurfaceView.takePic()
-            Toast.makeText(this, stringFromJNI(), Toast.LENGTH_SHORT).show()
 //            cameraSurfaceView.getCameraData()
         })
     }
@@ -34,16 +33,6 @@ class MainActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         cameraSurfaceView.onPermissionResult(requestCode, grantResults)
-    }
-    
-    external fun stringFromJNI(): String
-    
-    companion object {
-        
-        // Used to load the 'native-lib' library on application startup.
-        init {
-            System.loadLibrary("native-lib")
-        }
     }
     
 }

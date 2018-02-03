@@ -9,7 +9,8 @@ set_target_properties(lib_opencv_java3 PROPERTIES IMPORTED_LOCATION
                         ${opencv_DIR}/libs/${ANDROID_ABI}/libopencv_java3.so)
 
 add_library( native-lib SHARED
-             src/main/cpp/native-lib.cpp )
+             src/main/cpp/native-lib.cpp
+              src/main/cpp/MoveDetection.cpp)
 
 find_library(log-lib log )
 
