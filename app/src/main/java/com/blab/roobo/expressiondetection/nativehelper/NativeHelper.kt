@@ -5,7 +5,17 @@ package com.blab.roobo.expressiondetection.nativehelper
  */
 class NativeHelper {
     
-    external fun stringFromJNI(): String
+//    external fun stringFromJNI(): String
+    
+    val pointer: Long
+    
+    init {
+        pointer = init()
+    }
+    
+    external fun init(): Long
+    
+    external fun readImage(pointer: Long, data: ByteArray): ByteArray
     
     companion object {
         

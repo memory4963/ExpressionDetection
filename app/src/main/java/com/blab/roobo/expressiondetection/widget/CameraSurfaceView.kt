@@ -7,7 +7,6 @@ import android.content.pm.PackageManager
 import android.graphics.*
 import android.hardware.Camera
 import android.os.Handler
-import android.os.Message
 import android.support.constraint.ConstraintLayout
 import android.util.AttributeSet
 import android.util.DisplayMetrics
@@ -17,7 +16,7 @@ import android.view.SurfaceView
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.Toast
-import com.blab.roobo.expressiondetection.base.SET_IMAGE
+import com.blab.roobo.expressiondetection.nativehelper.NativeHelper
 import com.hellonurse.helloclient.utils.ImageLoader
 import com.hellonurse.helloclient.utils.RequestPermissionUtils
 import java.io.ByteArrayOutputStream
@@ -32,10 +31,11 @@ class CameraSurfaceView : SurfaceView, SurfaceHolder.Callback, Camera.AutoFocusC
     public lateinit var mHandler: Handler
     public lateinit var activity: Activity
     public lateinit var imageView: ImageView
+    public lateinit var nativeHelper: NativeHelper
     
     private val mContext: Context
     private var mHolder: SurfaceHolder? = null
-    private var mCamera: Camera? = null
+    var mCamera: Camera? = null
     
     private var mScreenWidth: Int = 0
     private var mScreenHeight: Int = 0
@@ -64,7 +64,7 @@ class CameraSurfaceView : SurfaceView, SurfaceHolder.Callback, Camera.AutoFocusC
     }
     
     override fun surfaceCreated(p0: SurfaceHolder?) {
-        Log.i(TAG, "surfaceCreated")
+        Log.d(TAG, "surfaceCreated")
         val permissions = arrayListOf(android.Manifest.permission.CAMERA,
                 android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
         if (!RequestPermissionUtils.requestPermission(activity, permissions,
@@ -74,32 +74,33 @@ class CameraSurfaceView : SurfaceView, SurfaceHolder.Callback, Camera.AutoFocusC
     }
     
     private fun startCamera() {
-        if (mCamera == null) {
-            mCamera = if (Camera.getNumberOfCameras() > 1) {
-                Camera.open(1)//开启相机
-            } else {
-                Camera.open()//开启相机
-            }
-            try {
-                
-                mCamera?.setPreviewDisplay(holder)//摄像头画面显示在Surface上
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-            setCameraParams()
+        if (mCamera != null) {
+            mCamera?.release()
         }
+        mCamera = if (Camera.getNumberOfCameras() > 1) {
+            Camera.open(1)//开启相机
+        } else {
+            Camera.open()//开启相机
+        }
+        try {
+            
+            mCamera?.setPreviewDisplay(holder)//摄像头画面显示在Surface上
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        setCameraParams()
     }
     
     override fun surfaceChanged(p0: SurfaceHolder?, p1: Int, p2: Int, p3: Int) {
-        Log.i(TAG, "surfaceChanged")
+        Log.d(TAG, "surfaceChanged")
         mCamera?.startPreview()
     }
     
     override fun surfaceDestroyed(p0: SurfaceHolder?) {
-        Log.i(TAG, "surfaceDestroyed")
+        Log.d(TAG, "surfaceDestroyed")
         mCamera?.stopPreview()//停止预览
-        mCamera?.release()//释放相机资源
-        mCamera = null
+//        mCamera?.release()//释放相机资源
+//        mCamera = null
         mHolder = null
     }
     
@@ -165,11 +166,22 @@ class CameraSurfaceView : SurfaceView, SurfaceHolder.Callback, Camera.AutoFocusC
                 val rawImage = stream.toByteArray()
                 val options = BitmapFactory.Options()
                 options.inPreferredConfig = Bitmap.Config.RGB_565
-                val bmp = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.size, options)
+                
+                val readImage = nativeHelper.readImage(nativeHelper.pointer, rawImage)
+                val bmp = BitmapFactory.decodeByteArray(readImage, 0, rawImage.size, options)
                 imageView.setImageBitmap(bmp)
-                imageView.postDelayed({
-                    bmp.recycle()
-                }, 2000)
+//                val temp = bitmap
+//                bitmap = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.size, options)
+//                imageView.setImageBitmap(bitmap)
+//                temp.recycle()
+//                if (!bool) {
+//                    bool = true
+//                    Log.d(TAG, "setCameraParams: 进入")
+//                    val readImage = nativeHelper.readImage(nativeHelper.pointer, rawImage)
+//                    val bmp = BitmapFactory.decodeByteArray(readImage, 0, rawImage.size, options)
+//                    Log.d(TAG, "setCameraParams: bmp returned")
+//                    imageView.setImageBitmap(bmp)
+//                }
             })
             
             it.cancelAutoFocus()//自动对焦。
@@ -214,33 +226,33 @@ class CameraSurfaceView : SurfaceView, SurfaceHolder.Callback, Camera.AutoFocusC
         return result
     }
     
-    private val shutterCallback = Camera.ShutterCallback { Log.d(TAG, "onShutter: shutter") }
-    
-    private val rawCallback = Camera.PictureCallback { _, _ -> Log.d(TAG, "onPictureTaken: raw data") }
-    
-    private lateinit var bitmap: Bitmap
-    
-    private val jpegCallback = Camera.PictureCallback { data, _ ->
-        try {
-            val bmp = BitmapFactory.decodeByteArray(data, 0, data.size)
-            //缩放
-            val matrix = Matrix()
-            matrix.postScale(0.5f, 0.5f)
-            bitmap = Bitmap.createBitmap(bmp, 0, 0, bmp.width, bmp.height, matrix, true)
-            bmp.recycle()
-            
-            val msg = Message.obtain()
-            msg.what = SET_IMAGE
-            msg.obj = bitmap
-            mHandler.sendMessage(msg)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-    
-    fun takePic() {
-        mCamera?.takePicture(shutterCallback, rawCallback, jpegCallback)
-    }
+//    private val shutterCallback = Camera.ShutterCallback { Log.d(TAG, "onShutter: shutter") }
+//
+//    private val rawCallback = Camera.PictureCallback { _, _ -> Log.d(TAG, "onPictureTaken: raw data") }
+//
+//    private lateinit var bitmap: Bitmap
+//
+//    private val jpegCallback = Camera.PictureCallback { data, _ ->
+//        try {
+//            val bmp = BitmapFactory.decodeByteArray(data, 0, data.size)
+//            //缩放
+//            val matrix = Matrix()
+//            matrix.postScale(0.5f, 0.5f)
+//            bitmap = Bitmap.createBitmap(bmp, 0, 0, bmp.width, bmp.height, matrix, true)
+//            bmp.recycle()
+//
+//            val msg = Message.obtain()
+//            msg.what = SET_IMAGE
+//            msg.obj = bitmap
+//            mHandler.sendMessage(msg)
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
+//    }
+//
+//    fun takePic() {
+//        mCamera?.takePicture(shutterCallback, rawCallback, jpegCallback)
+//    }
     
     fun getCameraData() {
         mCamera?.let {

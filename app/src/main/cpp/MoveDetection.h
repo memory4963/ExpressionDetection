@@ -8,6 +8,10 @@
 
 #include <opencv2/core/hal/interface.h>
 #include <opencv2/core/core.hpp>
+#include <opencv2/core/hal/interface.h>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/video/background_segm.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/video/background_segm.hpp>
 
@@ -15,8 +19,13 @@ using namespace cv;
 
 class MoveDetection {
 
+public:
     Mat bgMat;
-//    BackgroundSubtractorMOG2
+    Ptr<BackgroundSubtractorMOG2> bgSubtractor;
+
+    MoveDetection();
+
+    void loadImage(Mat frame);
 
 };
 
