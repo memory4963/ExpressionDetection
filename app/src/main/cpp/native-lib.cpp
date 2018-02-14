@@ -54,7 +54,21 @@ Java_com_blab_roobo_expressiondetection_nativehelper_NativeHelper_readImage(
     //进行检测
     ((MoveDetection *) moveDetection)->bgSubtractor->apply(frame, mask);
 
+    int counter = 0;
 
+    Mat_<uchar>::iterator it = mask.begin<uchar>();
+    Mat_<uchar>::iterator itEnd = mask.end<uchar>();
+    for (; it != itEnd; ++it) {
+        if ((*it) > 127) {
+            counter++;
+        }
+    }
+
+    if ((counter + 0.5) / (mask.cols * mask.rows) > 0.1) {
+        ((MoveDetection *) moveDetection)->movement = true;
+    } else {
+        ((MoveDetection *) moveDetection)->movement = false;
+    }
 
     //传回byteArray
     std::vector<unsigned char> buff;
@@ -69,4 +83,19 @@ Java_com_blab_roobo_expressiondetection_nativehelper_NativeHelper_readImage(
     jbyteArray jarray = env->NewByteArray(byteSize);
     env->SetByteArrayRegion(jarray, 0, byteSize, jb);
     return jarray;
+}
+
+extern "C"
+JNIEXPORT jboolean
+JNICALL
+Java_com_blab_roobo_expressiondetection_nativehelper_NativeHelper_readCounter(
+        JNIEnv *env,
+        jobject /* this */,
+        jlong moveDetection
+) {
+    if (((MoveDetection *) moveDetection)->movement) {
+        return JNI_TRUE;
+    } else {
+        return JNI_FALSE;
+    }
 }

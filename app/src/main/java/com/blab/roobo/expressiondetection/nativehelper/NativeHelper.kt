@@ -17,6 +17,8 @@ class NativeHelper {
     
     external fun readImage(pointer: Long, data: ByteArray): ByteArray
     
+    external fun readCounter(pointer: Long): Boolean
+    
     companion object {
         
         // Used to load the 'native-lib' library on application startup.

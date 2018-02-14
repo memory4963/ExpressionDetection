@@ -22,6 +22,7 @@ class MoveDetection {
 public:
     Mat bgMat;
     Ptr<BackgroundSubtractorMOG2> bgSubtractor;
+    bool movement = false;
 
     MoveDetection();
 

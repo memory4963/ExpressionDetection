@@ -10,6 +10,7 @@ import android.view.View
 import com.blab.roobo.expressiondetection.base.SET_IMAGE
 import com.blab.roobo.expressiondetection.nativehelper.NativeHelper
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.view.*
 import java.lang.ref.WeakReference
 
 class MainActivity : AppCompatActivity() {
@@ -30,6 +31,7 @@ class MainActivity : AppCompatActivity() {
         cameraSurfaceView.mHandler = handler
         cameraSurfaceView.activity = this
         cameraSurfaceView.imageView = imageView
+        cameraSurfaceView.button = button
         cameraSurfaceView.nativeHelper = nativeHelper
         //获取图片button
         button.setOnClickListener({

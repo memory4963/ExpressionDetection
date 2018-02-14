@@ -14,6 +14,7 @@ import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.WindowManager
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
 import com.blab.roobo.expressiondetection.nativehelper.NativeHelper
@@ -32,6 +33,7 @@ class CameraSurfaceView : SurfaceView, SurfaceHolder.Callback, Camera.AutoFocusC
     public lateinit var activity: Activity
     public lateinit var imageView: ImageView
     public lateinit var nativeHelper: NativeHelper
+    public lateinit var button: Button
     
     private val mContext: Context
     private var mHolder: SurfaceHolder? = null
@@ -147,7 +149,7 @@ class CameraSurfaceView : SurfaceView, SurfaceHolder.Callback, Camera.AutoFocusC
                 parameters.focusMode = android.hardware.Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE// 连续对焦模式
             }
             
-            parameters.setPreviewFpsRange(25, 30) // 每秒预览帧数
+            parameters.setPreviewFpsRange(40, 45) // 每秒预览帧数
             parameters.previewFrameRate = 3 // 每秒获取帧数
             //处理获取帧数
             it.setPreviewCallback({ data, camera ->
@@ -168,6 +170,7 @@ class CameraSurfaceView : SurfaceView, SurfaceHolder.Callback, Camera.AutoFocusC
                 options.inPreferredConfig = Bitmap.Config.RGB_565
                 
                 val readImage = nativeHelper.readImage(nativeHelper.pointer, rawImage)
+                button.text = nativeHelper.readCounter(nativeHelper.pointer).toString()
                 val bmp = BitmapFactory.decodeByteArray(readImage, 0, rawImage.size, options)
                 imageView.setImageBitmap(bmp)
 //                val temp = bitmap
@@ -225,7 +228,7 @@ class CameraSurfaceView : SurfaceView, SurfaceHolder.Callback, Camera.AutoFocusC
         
         return result
     }
-    
+
 //    private val shutterCallback = Camera.ShutterCallback { Log.d(TAG, "onShutter: shutter") }
 //
 //    private val rawCallback = Camera.PictureCallback { _, _ -> Log.d(TAG, "onPictureTaken: raw data") }
